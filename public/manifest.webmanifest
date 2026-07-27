@@ -1,0 +1,16 @@
+{
+  "name": "Operational Picture — Concept by TACEDGE",
+  "short_name": "Op Picture",
+  "description": "Concept prototype: one shared operational picture over existing project systems. Demonstration data throughout.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f6f7",
+  "theme_color": "#211f1f",
+  "icons": [
+    { "src": "./brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./brand/tacedge-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

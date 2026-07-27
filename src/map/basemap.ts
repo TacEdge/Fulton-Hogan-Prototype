@@ -34,6 +34,12 @@ const MAP = {
   regionLine: "#dce2e6",
 } as const;
 
+/** Resolves a public asset against the deployed base path, so the prototype
+ *  works at a domain root and under a subdirectory without a rebuild. */
+export function asset(path: string): string {
+  return `${import.meta.env.BASE_URL}${path}`;
+}
+
 export function resolveBasemapKind(): BasemapKind {
   const requested = (import.meta.env.VITE_BASEMAP ?? "local") as BasemapKind;
   const hasLinzKey = Boolean(import.meta.env.VITE_LINZ_API_KEY);
@@ -62,8 +68,8 @@ export function localStyle(): StyleSpecification {
     // map is a DOM marker, which is what keeps the type system exact and keeps
     // a glyph server out of the deployment.
     sources: {
-      "nz-land": { type: "geojson", data: "/geo/nz-land.json" },
-      "nz-regions": { type: "geojson", data: "/geo/nz-regions.json" },
+      "nz-land": { type: "geojson", data: asset("geo/nz-land.json") },
+      "nz-regions": { type: "geojson", data: asset("geo/nz-regions.json") },
     },
     layers: [
       { id: "sea", type: "background", paint: { "background-color": MAP.sea } },

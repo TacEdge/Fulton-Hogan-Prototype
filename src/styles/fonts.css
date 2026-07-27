@@ -1,13 +1,16 @@
 /* Type stack per the Fulton Hogan brand guidance: Montserrat for display,
    Inter for interface and body. Two families, no more.
 
-   Both are variable fonts, self-hosted from public/fonts/, never a CDN. Latin
-   and latin-ext are both carried because New Zealand place names need macrons
-   (Ōtira, Tairāwhiti, Manawatū) and latin alone does not have them. */
+   Both are variable fonts, self-hosted from src/fonts/, never a CDN. They live
+   under src rather than public so the bundler fingerprints them and rewrites
+   their URLs for whatever base path the site is deployed under.
+
+   Latin and latin-ext are both carried because New Zealand place names need
+   macrons (Ōtira, Tairāwhiti, Manawatū) and latin alone does not have them. */
 
 @font-face {
   font-family: "Inter";
-  src: url("/fonts/inter-variable-latin.woff2") format("woff2");
+  src: url("../fonts/inter-variable-latin.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -17,7 +20,7 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("/fonts/inter-variable-latin-ext.woff2") format("woff2");
+  src: url("../fonts/inter-variable-latin-ext.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -28,7 +31,7 @@
 
 @font-face {
   font-family: "Montserrat";
-  src: url("/fonts/montserrat-variable-latin.woff2") format("woff2");
+  src: url("../fonts/montserrat-variable-latin.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -38,7 +41,7 @@
 
 @font-face {
   font-family: "Montserrat";
-  src: url("/fonts/montserrat-variable-latin-ext.woff2") format("woff2");
+  src: url("../fonts/montserrat-variable-latin-ext.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;

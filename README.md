@@ -34,6 +34,19 @@ npm run typecheck
 Node 20 or newer. No API keys, no tile server, no database, no network access
 required: the basemap is a small vector basemap carried in `public/geo/`.
 
+### Hosted build
+
+Pushing to this branch publishes to
+<https://tacedge.github.io/Fulton-Hogan-Prototype/> via
+`.github/workflows/deploy-pages.yml`. The site is served from a subdirectory, so
+the workflow builds with `VITE_BASE=/Fulton-Hogan-Prototype/`; everything that
+resolves an asset at runtime goes through `import.meta.env.BASE_URL`, so the
+same source runs at a domain root without a change.
+
+The page carries a web app manifest and `noindex`, so it installs to a phone or
+desktop home screen as a standalone app and stays out of search results.
+Obscurity, not access control: the URL is public to anyone who has it.
+
 ### Optional: LINZ Basemaps
 
 The prototype can render on LINZ Basemaps, the New Zealand authoritative
@@ -320,9 +333,11 @@ what lets the prototype run with no network at all.
    `src/data/portfolio.ts`). Relative times are written against that date.
 6. **People are initials and a surname**, deliberately, so no invented person
    reads as a real one.
-7. **Desktop first.** Down to about 1180px the chrome narrows and the map keeps
-   the space. Below 900px the drawer becomes a bottom sheet and the map still
-   leads. It is not designed for phones.
+7. **Desktop first, phone capable.** Down to about 1180px the chrome narrows
+   and the map keeps the space. Below 900px the drawer becomes a bottom sheet,
+   the legend folds, and unrequested map labels are suppressed, because on a
+   small map they cover more than they explain. It installs and works on a
+   phone; it is designed for a desk.
 8. **No photography.** The guidance asks for authentic documentary imagery in
    evidence views. Nothing suitable exists here and inventing a construction
    photograph would be a fabrication, so evidence records show a labelled

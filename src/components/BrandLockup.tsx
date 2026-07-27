@@ -8,11 +8,16 @@
    Drop an official file at `public/brand/fulton-hogan-logo.svg` and the header
    renders it, unmodified and at the supplied aspect ratio, in the position the
    guidance specifies. Until then the slot collapses and the header leads with
-   the product name. Nothing here approximates the mark. */
+   the product name. Nothing here approximates the mark.
+
+   While the file is absent the browser logs one 404 for it. That is the slot
+   asking whether it has been filled, and it is the only request in the app that
+   is allowed to fail. */
 
 import { useState } from "react";
+import { asset } from "@/map/basemap";
 
-const LOGO_SRC = "/brand/fulton-hogan-logo.svg";
+const LOGO_SRC = asset("brand/fulton-hogan-logo.svg");
 
 export function BrandLockup() {
   const [available, setAvailable] = useState(true);

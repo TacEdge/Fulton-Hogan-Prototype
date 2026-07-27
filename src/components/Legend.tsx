@@ -13,8 +13,15 @@ export interface LegendItem {
   note?: string;
 }
 
+/** Open on a desktop, folded on a phone: on a small screen the legend would
+ *  take half the map, and the statuses are labelled everywhere else anyway. */
+function defaultOpen(): boolean {
+  if (typeof window === "undefined") return true;
+  return !window.matchMedia("(max-width: 900px)").matches;
+}
+
 export function Legend({ title, items }: { title: string; items: LegendItem[] }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div className={`legend${open ? "" : " is-collapsed"}`}>
       <button type="button" className="legend-head" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
