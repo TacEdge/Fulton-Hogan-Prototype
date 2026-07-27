@@ -5,6 +5,11 @@ name: Deploy prototype to GitHub Pages
 #
 # The site is served from a subdirectory, so VITE_BASE is set to match. Nothing
 # else about the build differs from a local one.
+#
+# Two jobs on purpose. A job that declares `environment: github-pages` is gated
+# on that environment before any of its steps run, so it cannot be the job that
+# enables Pages in the first place. Enabling happens in build; deploy only
+# deploys.
 
 on:
   push:
@@ -23,10 +28,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,21 +43,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Type-check and build
-        env:
-          VITE_BASE: /${{ github.event.repository.name }}/
-        run: npm run build
-
       - name: Configure Pages (enable if needed)
         uses: actions/configure-pages@v5
         with:
           enablement: true
+
+      - name: Type-check and build
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: npm run build
 
       - name: Upload build as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
