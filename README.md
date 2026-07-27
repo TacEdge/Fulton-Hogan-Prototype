@@ -36,9 +36,12 @@ required: the basemap is a small vector basemap carried in `public/geo/`.
 
 ### Hosted build
 
-Pushing to this branch publishes to
+Pushing to `main` publishes to
 <https://tacedge.github.io/Fulton-Hogan-Prototype/> via
-`.github/workflows/deploy-pages.yml`. The site is served from a subdirectory, so
+`.github/workflows/deploy-pages.yml`. The workflow also runs on the feature
+branch, but only `main` can complete: GitHub's `github-pages` environment
+restricts which branches may deploy, and widening that is a repository setting
+rather than something the workflow can do for itself. The site is served from a subdirectory, so
 the workflow builds with `VITE_BASE=/Fulton-Hogan-Prototype/`; everything that
 resolves an asset at runtime goes through `import.meta.env.BASE_URL`, so the
 same source runs at a domain root without a change.
