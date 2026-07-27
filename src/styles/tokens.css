@@ -1,0 +1,115 @@
+/* ============================================================================
+   TACEDGE design tokens
+   ----------------------------------------------------------------------------
+   Values are copied verbatim from TacEdge/Brand-Identity-and-Guidelines
+   (tokens/colors.json, typography.json, spacing.json, radii.json, shadows.json).
+   That repository is the source of truth. This file never introduces a colour,
+   a radius or a type size that does not exist there.
+
+   Two rules from the brand repository govern how colour is used here:
+     - #2B4721 (logo-forest) is artwork-only. It is not in this file because
+       nothing outside a logo file may use it.
+     - Ochre #B07D2B and brick #9E3B2E carry product meaning only. In this
+       prototype they mean "attention required" and "intervention required".
+       They are never decorative.
+   ========================================================================== */
+
+:root {
+  /* ---- Colour: greens --------------------------------------------------- */
+  --forest: #112411; /* primary-dark */
+  --forest-2: #1a3219; /* primary-dark-hover */
+  --contour-on-dark: #1b331a;
+  --olive: #6e7d5c; /* utility-sage, also "information" */
+  --olive-edge: #aeb89c; /* sage-edge */
+  --sage: #b2b594; /* pale-sage */
+  --sage-tint: #e6ebd9;
+
+  /* ---- Colour: surfaces ------------------------------------------------- */
+  --cream: #f7f5ec; /* warm-cream, the brand paper */
+  --card: #ffffff;
+  --tint: #eff1e4; /* quiet-tint */
+  --stage: #dde3d2;
+
+  /* ---- Colour: text ----------------------------------------------------- */
+  --ink: #242a1f; /* primary-text */
+  --ink-60: #5b6253; /* secondary-text */
+  --ink-40: #646a5a; /* muted-text */
+
+  /* ---- Colour: lines ---------------------------------------------------- */
+  --line: #e7e2d6; /* border */
+  --line-2: #d9d3c4; /* border-strong */
+  --rule: #cbd2c9; /* divider */
+
+  /* ---- Colour: status (product meaning only) ---------------------------- */
+  --success: #112411; /* forest fill is the terminal-positive state */
+  --ochre: #b07d2b; /* warning */
+  --ochre-tint: #f5ebd4;
+  --brick: #9e3b2e; /* error */
+  --brick-tint: #f3ddd6;
+
+  /* ---- Colour: alpha hairlines ------------------------------------------ */
+  --cream-line: rgba(247, 245, 236, 0.16);
+  --sage-line: rgba(178, 181, 148, 0.5);
+  --olive-line: rgba(110, 125, 92, 0.28);
+
+  /* ---- Type ------------------------------------------------------------- */
+  --display: "Play", system-ui, sans-serif;
+  --ui: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --fs-2xs: 10px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-base: 14px;
+  --fs-md: 15px;
+  --fs-lg: 18px;
+  --fs-xl: 26px;
+  --fs-2xl: 30px;
+
+  /* ---- Spacing ---------------------------------------------------------- */
+  --sp-2xs: 4px;
+  --sp-xs: 8px;
+  --sp-sm: 12px;
+  --sp-md: 16px;
+  --sp-lg: 20px;
+  --sp-xl: 24px;
+  --sp-2xl: 28px;
+  --sp-3xl: 36px;
+  --sp-4xl: 48px;
+
+  /* ---- Radius ----------------------------------------------------------- */
+  --r-sm: 10px;
+  --r-md: 12px;
+  --r-lg: 14px;
+  --r-card: 16px;
+  --r-panel: 20px;
+  --r-panel-lg: 24px;
+  --r-pill: 999px;
+
+  /* ---- Elevation -------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(27, 33, 23, 0.05);
+  --shadow-md: 0 2px 10px rgba(27, 33, 23, 0.06);
+  --shadow-lg: 0 8px 28px rgba(27, 33, 23, 0.1);
+
+  /* ---- Motion. Restrained: state changes, never decoration. ------------- */
+  --motion-dur: 0.16s;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- Chrome geometry -------------------------------------------------- */
+  --header-h: 60px;
+  --panel-w: 400px;
+  --rail-w: 268px;
+}
+
+/* Health states resolve to brand status colour in exactly one place. Every
+   component reads these, so re-pointing a state is a one-line change. */
+:root {
+  --health-on-track: var(--forest);
+  --health-on-track-tint: var(--sage-tint);
+  --health-attention: var(--ochre);
+  --health-attention-tint: var(--ochre-tint);
+  --health-intervention: var(--brick);
+  --health-intervention-tint: var(--brick-tint);
+  --health-stale: var(--ink-40);
+  --health-stale-tint: var(--tint);
+}
