@@ -55,17 +55,20 @@ console. The style is chosen once at boot.
 1. **Portfolio.** Fifteen active projects on one national map. The headline
    strip answers how many are running, how many are on track, how many need
    attention, how many need intervention, and how many have stopped reporting.
-   Marker size and colour both carry status, so the picture survives a
-   colour-blind reader and a projector.
+   Marker size, colour and centre symbol all carry status, so the picture
+   survives a colour-blind reader and a projector. The two projects needing a
+   decision above project level are named on the map without being asked;
+   everything else labels on hover, which is what keeps the national view
+   readable.
 2. **Select an amber project.** `SH73 Ōtira Gorge Resilience Package` opens a
    panel: progress against programme, variance, current workfront, open issues,
    overdue actions, next milestone and its confidence, accountability, and when
    the data last refreshed. Expand *Show signals* to see every reading behind
    the status, each with its own age and source system.
 3. **View project.** The map moves from the country to the corridor. Completed,
-   active, behind, blocked and planned work are drawn where they are happening,
-   with issues, milestones and evidence capture points on top. The layer rail
-   turns each of those on and off.
+   in-progress, behind, blocked and planned work are drawn where they are
+   happening, with issues, milestones and evidence capture points on top. The
+   layer tabs switch what the map is answering, each carrying its own count.
 4. **Select an issue.** The map goes to the exact location. The panel leads with
    the required next action and its owner, then the location, the programme and
    cost impact, the latest update, the ownership, the evidence, and the source
@@ -180,26 +183,47 @@ The interface labels it *indicative project geometry*.
 
 ---
 
-## Repository dependencies
+## Branding
 
-Three TACEDGE repositories were used as read-only reference. Nothing in them was
-modified.
+Two sources govern the visual system, and they do different jobs.
 
-**[Brand-Identity-and-Guidelines](https://github.com/TacEdge/Brand-Identity-and-Guidelines)**
-is the source of truth for the visual system. `src/styles/tokens.css` copies
-colour, type, spacing, radius and elevation values verbatim from `tokens/*.json`
-there, and introduces none of its own. The rules it enforces here:
+### Fulton Hogan brand guidance
 
-- TACEDGE is always uppercase.
-- The palette is closed. `#2B4721` is artwork-only and does not appear.
-- Ochre `#B07D2B` and brick `#9E3B2E` carry product meaning only. Here they mean
-  *attention required* and *intervention required*, never decoration.
-- Logo assets are used exactly as supplied. `public/brand/` holds the approved
-  lockup and app icon, unmodified.
-- Play, Be Vietnam Pro and JetBrains Mono are self-hosted from `public/fonts/`,
-  never a CDN. They are Google Fonts under SIL OFL 1.1 and exist here only to
-  render this prototype.
-- NZ spelling. No em dashes.
+`FULTON_HOGAN_BRAND_GUIDELINES.md`, supplied for this prototype, is the
+authority for how the interface looks. It is described in that document as
+public-site-derived and provisional, not an official Fulton Hogan brand manual,
+so every value it gives is treated as an approximation that official brand files
+would replace. `src/styles/tokens.css` implements it in one place:
+
+- Charcoal `#211F1F` frame, white and neutral surfaces, roughly the 70 / 20 / 10
+  balance the guidance asks for.
+- Brand blue `#0099C7` for identity and links, brand orange `#F58325` for the
+  current selection and one primary emphasis. Neither appears as a background
+  wash, and neither is used at body text size: `#006B8A` and `#A94700` carry
+  those, because the bright values fail AA below large text.
+- Semantic status colours only for operational meaning: green on track, amber
+  attention, red intervention, grey data not current. Brand orange is never
+  used to mean "warning".
+- Montserrat for display and Inter for interface, self-hosted from
+  `public/fonts/`, never a CDN. Both are Google Fonts under SIL OFL 1.1 and
+  exist here only to render this prototype.
+- Sentence case throughout. Uppercase is reserved for short eyebrow labels and
+  status stamps.
+- 4px spacing scale, 4 to 8px radii, hairline borders, minimal shadow.
+- Motion is 120 to 220ms and respects `prefers-reduced-motion`.
+
+**There is no Fulton Hogan logo in this prototype.** No official asset exists in
+any connected repository, and the guidance is explicit that the mark must not be
+redrawn or recreated in CSS and that a third-party download is not a substitute.
+Nothing here approximates it. `src/components/BrandLockup.tsx` is a slot: drop an
+official file at `public/brand/fulton-hogan-logo.svg` and the header renders it,
+unmodified and at the supplied aspect ratio, in the position the guidance
+specifies. Until then the slot collapses and the header leads with the product
+name.
+
+### TACEDGE repositories
+
+Three were used as read-only reference. Nothing in them was modified.
 
 **[Coordination](https://github.com/TacEdge/Coordination)** is the TacEdge
 mapping application, and the geospatial architecture here follows it rather than
@@ -212,6 +236,13 @@ addressing for LINZ Basemaps styles as `src/lib/map/basemaps.ts` there.
 operating context: NZTA Waka Kotahi's Integrated Delivery Model, the contract
 and programme vocabulary, the traffic-management and quality terms, and the
 digital-systems landscape. Terminology only.
+
+**[Brand-Identity-and-Guidelines](https://github.com/TacEdge/Brand-Identity-and-Guidelines)**
+governs how TACEDGE appears. Here that reduces to one rule that still applies:
+TACEDGE is always uppercase. The interface itself follows the Fulton Hogan
+guidance above, because this is a Fulton Hogan concept screen, and the TACEDGE
+attribution is deliberately secondary: the words "Concept by TACEDGE" beside the
+product name, and no TACEDGE mark competing with the client's identity.
 
 ---
 
@@ -226,12 +257,13 @@ src/
   state/        viewStore.ts          client-only view state (Zustand)
   map/          MapInstanceManager, MapCanvas, MapCamera, MapMarker,
                 GeoJsonLayer, basemap
-  components/   portfolio/, project/, ui/, AppHeader, AboutPanel, Legend
+  components/   portfolio/, project/, ui/, AppHeader, BrandLockup,
+                AboutPanel, Legend
   styles/       tokens.css, fonts.css, base.css, app.css
 public/
   geo/          nz-land.json, nz-regions.json   simplified from Natural Earth
-  fonts/        self-hosted woff2
-  brand/        approved TACEDGE logo and app icon, unmodified
+  fonts/        self-hosted Inter and Montserrat woff2
+  brand/        client logo slot (empty), TACEDGE app icon used as the favicon
 ```
 
 Separation worth keeping: `domain/` and `services/` know nothing about React;
@@ -240,14 +272,16 @@ data modules. Swapping the demonstration source for a live one is a change in
 one file.
 
 React 19, Vite, TypeScript in strict mode, MapLibre GL JS, Zustand. No UI
-framework and no CSS framework: the brand tokens are the design system.
+framework, no CSS framework and no icon library: the tokens are the design
+system and the icons are drawn in `components/ui/icons.tsx` so stroke, size and
+join stay consistent.
 
 ### Map rendering notes
 
 - Geometry (land, regions, boundary, corridor, workfronts) renders as GL layers.
-  Everything carrying text or taking a click is a DOM marker, which keeps brand
-  typography exact, keeps labels focusable, and means the deployment never needs
-  a glyph server.
+  Everything carrying text or taking a click is a DOM marker, which keeps the
+  type system exact, keeps labels focusable, and means the deployment never
+  needs a glyph server.
 - Chrome clearance is applied as per-call `padding` on `fitBounds` and as a
   centre `offset` on point moves. It is never left on the map as persistent
   padding, because MapLibre would then apply it a second time and pull every fit
@@ -287,15 +321,25 @@ what lets the prototype run with no network at all.
 6. **People are initials and a surname**, deliberately, so no invented person
    reads as a real one.
 7. **Desktop first.** Down to about 1180px the chrome narrows and the map keeps
-   the space. Below 900px the panel becomes a bottom sheet and the map still
+   the space. Below 900px the drawer becomes a bottom sheet and the map still
    leads. It is not designed for phones.
+8. **No photography.** The guidance asks for authentic documentary imagery in
+   evidence views. Nothing suitable exists here and inventing a construction
+   photograph would be a fabrication, so evidence records show a labelled
+   placeholder and say plainly that no photographs are included.
+9. **Navigation is the trail, not invented sections.** The mock shows Portfolio,
+   Programmes and Reports tabs. Only Portfolio exists, so only Portfolio and the
+   open project are in the header: dead tabs would be chrome pretending to be a
+   product.
 
 ---
 
 ## Licence and attribution
 
-Concept prototype by TACEDGE. Brand assets and tokens belong to TACEDGE and are
-governed by the brand repository. Basemap geometry is from Natural Earth (public
-domain). Fonts are SIL OFL 1.1. MapLibre GL JS is BSD-3-Clause.
+Concept prototype by TACEDGE. Colour, type and layout follow the supplied
+Fulton Hogan brand guidance, which is itself derived from public material and
+provisional; official brand files replace it. No Fulton Hogan logo or other
+trademarked asset is included. Basemap geometry is from Natural Earth (public
+domain). Montserrat and Inter are SIL OFL 1.1. MapLibre GL JS is BSD-3-Clause.
 
 Demonstration data throughout. Not a representation of any live project.

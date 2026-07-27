@@ -8,7 +8,7 @@
    ========================================================================== */
 
 import { create } from "zustand";
-import type { Health, IssueCategory, WorkState } from "@/domain/types";
+import type { Health, IssueCategory } from "@/domain/types";
 
 export type Scope = "portfolio" | "project";
 
@@ -28,24 +28,51 @@ export const EMPTY_FILTERS: PortfolioFilters = {
   issueCategories: [],
 };
 
-/** Which layers the project view is drawing. */
-export interface ProjectLayers {
-  work: WorkState[];
-  issues: boolean;
-  issueCategories: IssueCategory[];
-  milestones: boolean;
-  evidence: boolean;
+/** What the project map is showing. One view at a time rather than a stack of
+ *  toggles: the layer bar is there to answer a question, not to configure a
+ *  GIS. Work areas are always drawn, because the corridor is the subject. */
+export type LayerView =
+  | "all"
+  | "progress"
+  | "issues"
+  | "programme"
+  | "quality"
+  | "safety"
+  | "approvals"
+  | "constraints"
+  | "evidence";
+
+/** Layer views that resolve to a single issue category. */
+export const CATEGORY_VIEWS: Partial<Record<LayerView, IssueCategory>> = {
+  programme: "programme",
+  quality: "quality",
+  safety: "safety",
+  approvals: "approvals",
+  constraints: "constraints",
+};
+
+export interface ResolvedLayers {
+  showIssues: boolean;
+  issueCategory: IssueCategory | null;
+  showMilestones: boolean;
+  showEvidence: boolean;
 }
 
-export const ALL_WORK_STATES: WorkState[] = ["completed", "active", "planned", "blocked", "behind"];
-
-export const DEFAULT_PROJECT_LAYERS: ProjectLayers = {
-  work: ALL_WORK_STATES,
-  issues: true,
-  issueCategories: [],
-  milestones: true,
-  evidence: false,
-};
+export function resolveLayers(view: LayerView): ResolvedLayers {
+  if (view === "progress") {
+    return { showIssues: false, issueCategory: null, showMilestones: true, showEvidence: false };
+  }
+  if (view === "evidence") {
+    return { showIssues: false, issueCategory: null, showMilestones: false, showEvidence: true };
+  }
+  const category = CATEGORY_VIEWS[view] ?? null;
+  return {
+    showIssues: true,
+    issueCategory: category,
+    showMilestones: view === "all",
+    showEvidence: false,
+  };
+}
 
 interface ViewState {
   scope: Scope;
@@ -55,7 +82,7 @@ interface ViewState {
   hoveredProjectId: string | null;
   selectedWorkfrontId: string | null;
   filters: PortfolioFilters;
-  projectLayers: ProjectLayers;
+  layerView: LayerView;
   aboutOpen: boolean;
 
   selectProject(id: string | null): void;
@@ -66,9 +93,7 @@ interface ViewState {
   selectWorkfront(id: string | null): void;
   toggleFilter<K extends keyof PortfolioFilters>(key: K, value: PortfolioFilters[K][number]): void;
   clearFilters(): void;
-  setProjectLayers(update: Partial<ProjectLayers>): void;
-  toggleWorkState(state: WorkState): void;
-  toggleIssueCategory(category: IssueCategory): void;
+  setLayerView(view: LayerView): void;
   setAboutOpen(open: boolean): void;
 }
 
@@ -84,7 +109,7 @@ export const useViewStore = create<ViewState>((set) => ({
   hoveredProjectId: null,
   selectedWorkfrontId: null,
   filters: EMPTY_FILTERS,
-  projectLayers: DEFAULT_PROJECT_LAYERS,
+  layerView: "all",
   aboutOpen: false,
 
   selectProject: (id) => set({ selectedProjectId: id }),
@@ -96,7 +121,7 @@ export const useViewStore = create<ViewState>((set) => ({
       selectedProjectId: id,
       selectedIssueId: null,
       selectedWorkfrontId: null,
-      projectLayers: DEFAULT_PROJECT_LAYERS,
+      layerView: "all",
     }),
   closeProject: () =>
     set({
@@ -114,17 +139,7 @@ export const useViewStore = create<ViewState>((set) => ({
     })),
   clearFilters: () => set({ filters: EMPTY_FILTERS }),
 
-  setProjectLayers: (update) =>
-    set((state) => ({ projectLayers: { ...state.projectLayers, ...update } })),
-  toggleWorkState: (state) =>
-    set((s) => ({ projectLayers: { ...s.projectLayers, work: toggle(s.projectLayers.work, state) } })),
-  toggleIssueCategory: (category) =>
-    set((s) => ({
-      projectLayers: {
-        ...s.projectLayers,
-        issueCategories: toggle(s.projectLayers.issueCategories, category),
-      },
-    })),
+  setLayerView: (view) => set({ layerView: view }),
 
   setAboutOpen: (open) => set({ aboutOpen: open }),
 }));

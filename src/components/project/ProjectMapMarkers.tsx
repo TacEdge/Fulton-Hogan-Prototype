@@ -1,56 +1,56 @@
 /* Everything on the project map that carries text or takes a click: workfront
-   labels, issue pins, milestones and evidence. */
+   labels, issue pins, milestones and evidence. What is drawn is decided by the
+   layer tab, not by the map. */
 
 import { MapMarker } from "@/map/MapMarker";
-import type { ProjectDetail } from "@/domain/types";
+import type { ProjectDetail, WorkState } from "@/domain/types";
 import { CONFIDENCE_HEALTH, CONFIDENCE_LABEL, SEVERITY_HEALTH, SEVERITY_LABEL } from "@/domain/status";
 import { ISSUE_CATEGORY_BY_ID } from "@/data/reference";
-import { useViewStore } from "@/state/viewStore";
+import { resolveLayers, useViewStore } from "@/state/viewStore";
+import { IconImage } from "@/components/ui/icons";
 
-const WORK_STATE_LABEL = {
+const WORK_STATE_LABEL: Record<WorkState, string> = {
   completed: "Completed",
-  active: "Active",
+  active: "In progress",
   planned: "Planned",
   blocked: "Blocked",
   behind: "Behind programme",
-} as const;
+};
 
 export function ProjectMapMarkers({ detail }: { detail: ProjectDetail }) {
-  const layers = useViewStore((s) => s.projectLayers);
+  const layerView = useViewStore((s) => s.layerView);
+  const layers = resolveLayers(layerView);
   const selectedIssueId = useViewStore((s) => s.selectedIssueId);
   const selectedWorkfrontId = useViewStore((s) => s.selectedWorkfrontId);
   const selectIssue = useViewStore((s) => s.selectIssue);
   const selectWorkfront = useViewStore((s) => s.selectWorkfront);
 
-  const visibleIssues = layers.issues
-    ? detail.issues.filter(
-        (issue) =>
-          layers.issueCategories.length === 0 || layers.issueCategories.includes(issue.category),
-      )
+  const visibleIssues = layers.showIssues
+    ? detail.issues.filter((issue) => !layers.issueCategory || issue.category === layers.issueCategory)
     : [];
 
   return (
     <>
-      {detail.workfronts
-        .filter((w) => layers.work.includes(w.state))
-        .map((workfront) => (
-          <MapMarker key={workfront.id} lngLat={workfront.labelAt} anchor="left" order={10}>
-            <button
-              type="button"
-              className={`workfront-label is-${workfront.state}${
-                selectedWorkfrontId === workfront.id ? " is-selected" : ""
-              }`}
-              onClick={() => selectWorkfront(selectedWorkfrontId === workfront.id ? null : workfront.id)}
-              aria-pressed={selectedWorkfrontId === workfront.id}
-            >
-              <span className="workfront-label-ref u-num">{workfront.reference}</span>
-              <span className="workfront-label-name">{workfront.name}</span>
-              <span className="workfront-label-state u-label">{WORK_STATE_LABEL[workfront.state]}</span>
-            </button>
-          </MapMarker>
-        ))}
+      {detail.workfronts.map((workfront) => (
+        <MapMarker key={workfront.id} lngLat={workfront.labelAt} anchor="left" order={10}>
+          <button
+            type="button"
+            className={`workfront-label is-${workfront.state}${
+              selectedWorkfrontId === workfront.id ? " is-selected" : ""
+            }`}
+            onClick={() => selectWorkfront(selectedWorkfrontId === workfront.id ? null : workfront.id)}
+            aria-pressed={selectedWorkfrontId === workfront.id}
+          >
+            <span className="workfront-label-name">
+              <span className="u-num workfront-label-ref">{workfront.reference}</span>
+              {workfront.name}
+            </span>
+            <span className="workfront-label-state">{WORK_STATE_LABEL[workfront.state]}</span>
+          </button>
+        </MapMarker>
+      ))}
 
-      {layers.milestones
+      {layers.showMilestones
         ? detail.milestones.map((milestone) => (
             <MapMarker key={milestone.id} lngLat={milestone.position} order={20}>
               <span
@@ -60,18 +60,20 @@ export function ProjectMapMarkers({ detail }: { detail: ProjectDetail }) {
                 <span className="milestone-pin-mark" aria-hidden="true" />
                 <span className="milestone-pin-label">
                   {milestone.label}
-                  <span className="u-num milestone-pin-date">{milestone.date}</span>
+                  <span className="u-num milestone-pin-date">
+                    {milestone.date} · {CONFIDENCE_LABEL[milestone.confidence]}
+                  </span>
                 </span>
               </span>
             </MapMarker>
           ))
         : null}
 
-      {layers.evidence
+      {layers.showEvidence
         ? detail.evidence.map((item) => (
             <MapMarker key={item.id} lngLat={item.position} order={15}>
               <span className="evidence-pin" title={`${item.label} · ${item.caption}`}>
-                <span className="evidence-pin-mark" aria-hidden="true" />
+                <IconImage size={13} />
               </span>
             </MapMarker>
           ))

@@ -18,6 +18,29 @@ const NZ_BOUNDS: [[number, number], [number, number]] = [
   [178.7, -34.3],
 ];
 
+/** Reframes whatever the reader is currently looking at. Exposed so the map
+ *  controls and the camera agree on what "the whole picture" means. */
+export function useReframe(): () => void {
+  const { map, ready } = useMap();
+  const scope = useViewStore((s) => s.scope);
+  const openProjectId = useViewStore((s) => s.openProjectId);
+  const selectedProjectId = useViewStore((s) => s.selectedProjectId);
+  const detail = useProjectDetail(openProjectId);
+
+  return () => {
+    if (!map || !ready) return;
+    if (scope === "project" && detail) {
+      map.fitBounds(ringBounds(detail.boundary), { padding: framePadding(), duration: 700, maxZoom: 14 });
+      return;
+    }
+    map.fitBounds(NZ_BOUNDS, {
+      padding: framePadding(Boolean(selectedProjectId)),
+      duration: 700,
+      maxZoom: 7,
+    });
+  };
+}
+
 export function MapCamera() {
   const { map, ready } = useMap();
   const scope = useViewStore((s) => s.scope);
@@ -142,17 +165,17 @@ export function MapCamera() {
   return null;
 }
 
-/** Chrome clearance: rails on the left, panel on the right, top bar above.
- *  `panel` is false for the portfolio's resting state, where nothing is
- *  selected and the country can have the whole frame.
- *  Collapses on narrow viewports where the chrome stacks instead of floating. */
+/** Chrome clearance inside the map area: the legend card on the left, the
+ *  detail drawer on the right. `panel` is false for the portfolio's resting
+ *  state, where nothing is selected and the country can have the whole frame.
+ *  Collapses on narrow viewports where the drawer becomes a bottom sheet. */
 function framePadding(
   panel = true,
 ): { top: number; bottom: number; left: number; right: number } {
   const width = typeof window === "undefined" ? 1440 : window.innerWidth;
-  if (width < 900) return { top: 24, bottom: 24, left: 24, right: 24 };
-  if (width < 1280) return { top: 150, bottom: 48, left: 40, right: panel ? 360 : 60 };
-  return { top: 164, bottom: 56, left: 300, right: panel ? 432 : 80 };
+  if (width < 900) return { top: 24, bottom: panel ? 340 : 40, left: 24, right: 24 };
+  if (width < 1280) return { top: 24, bottom: 36, left: 200, right: panel ? 372 : 48 };
+  return { top: 28, bottom: 40, left: 224, right: panel ? 444 : 56 };
 }
 
 /** The same clearance expressed as a centre offset, for camera moves that

@@ -1,27 +1,29 @@
 /* The project-level spatial layers: boundary, corridor, context and the
    workfronts themselves. Colour carries the work state; the dash pattern
    carries whether work is proceeding, so blocked and planned still separate
-   in greyscale. */
+   without relying on hue. */
 
 import { useMemo } from "react";
 import { GeoJsonLayer, type LayerBody } from "@/map/GeoJsonLayer";
 import type { ProjectDetail, WorkState } from "@/domain/types";
 import { useViewStore } from "@/state/viewStore";
 
-const WORK_FILL: Record<WorkState, string> = {
-  completed: "#b2b594",
-  active: "#112411",
-  behind: "#b07d2b",
-  blocked: "#9e3b2e",
-  planned: "#646a5a",
+/* Semantic status colour, not decoration. Active work is informational blue
+   rather than green so that green keeps meaning finished. */
+const WORK_COLOUR: Record<WorkState, string> = {
+  completed: "#18864b",
+  active: "#1976a3",
+  behind: "#d97706",
+  blocked: "#c62828",
+  planned: "#7b8792",
 };
 
 const WORK_FILL_OPACITY: Record<WorkState, number> = {
-  completed: 0.26,
-  active: 0.14,
+  completed: 0.16,
+  active: 0.16,
   behind: 0.18,
   blocked: 0.2,
-  planned: 0.05,
+  planned: 0.07,
 };
 
 function collection(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
@@ -29,7 +31,6 @@ function collection(features: GeoJSON.Feature[]): GeoJSON.FeatureCollection {
 }
 
 export function ProjectGeometry({ detail }: { detail: ProjectDetail }) {
-  const visibleStates = useViewStore((s) => s.projectLayers.work);
   const selectedWorkfrontId = useViewStore((s) => s.selectedWorkfrontId);
   const selectedIssueId = useViewStore((s) => s.selectedIssueId);
 
@@ -78,22 +79,20 @@ export function ProjectGeometry({ detail }: { detail: ProjectDetail }) {
   const workData = useMemo(
     () =>
       collection(
-        detail.workfronts
-          .filter((w) => visibleStates.includes(w.state))
-          .map((workfront) => ({
-            type: "Feature" as const,
-            properties: {
-              id: workfront.id,
-              state: workfront.state,
-              fill: WORK_FILL[workfront.state],
-              fillOpacity: WORK_FILL_OPACITY[workfront.state],
-              selected: workfront.id === highlightedWorkfrontId,
-              dashed: workfront.state === "planned" || workfront.state === "blocked",
-            },
-            geometry: { type: "Polygon" as const, coordinates: [closeRing(workfront.ring)] },
-          })),
+        detail.workfronts.map((workfront) => ({
+          type: "Feature" as const,
+          properties: {
+            id: workfront.id,
+            state: workfront.state,
+            colour: WORK_COLOUR[workfront.state],
+            fillOpacity: WORK_FILL_OPACITY[workfront.state],
+            selected: workfront.id === highlightedWorkfrontId,
+            dashed: workfront.state === "planned" || workfront.state === "blocked",
+          },
+          geometry: { type: "Polygon" as const, coordinates: [closeRing(workfront.ring)] },
+        })),
       ),
-    [detail.workfronts, visibleStates, highlightedWorkfrontId],
+    [detail.workfronts, highlightedWorkfrontId],
   );
 
   return (
@@ -113,19 +112,15 @@ function closeRing(ring: [number, number][]): [number, number][] {
 }
 
 const BOUNDARY_LAYERS: LayerBody[] = [
-  {
-    suffix: "fill",
-    type: "fill",
-    paint: { "fill-color": "#eff1e4", "fill-opacity": 0.65 },
-  },
+  { suffix: "fill", type: "fill", paint: { "fill-color": "#ffffff", "fill-opacity": 0.5 } },
   {
     suffix: "line",
     type: "line",
     paint: {
-      "line-color": "#5b6253",
+      "line-color": "#5d6870",
       "line-width": 1.2,
-      "line-opacity": 0.55,
-      "line-dasharray": [4, 3],
+      "line-opacity": 0.6,
+      "line-dasharray": [5, 4],
     },
   },
 ];
@@ -135,24 +130,24 @@ const CONTEXT_LAYERS: LayerBody[] = [
     suffix: "river",
     type: "line",
     filter: ["==", ["get", "kind"], "river"],
-    paint: { "line-color": "#aeb89c", "line-width": 2.6, "line-opacity": 0.9 },
+    paint: { "line-color": "#b9d3e0", "line-width": 3, "line-opacity": 0.95 },
   },
   {
     suffix: "rail",
     type: "line",
     filter: ["==", ["get", "kind"], "rail"],
-    paint: { "line-color": "#646a5a", "line-width": 1.2, "line-dasharray": [2, 2], "line-opacity": 0.7 },
+    paint: { "line-color": "#7a858d", "line-width": 1.2, "line-dasharray": [3, 3], "line-opacity": 0.7 },
   },
   {
     suffix: "side-road",
     type: "line",
     filter: ["==", ["get", "kind"], "side-road"],
-    paint: { "line-color": "#d9d3c4", "line-width": 3, "line-opacity": 0.9 },
+    paint: { "line-color": "#e4e9ec", "line-width": 3.5, "line-opacity": 1 },
   },
 ];
 
 const CORRIDOR_LAYERS: LayerBody[] = [
-  { suffix: "casing", type: "line", paint: { "line-color": "#b2b594", "line-width": 9 } },
+  { suffix: "casing", type: "line", paint: { "line-color": "#aebdc7", "line-width": 9 } },
   { suffix: "fill", type: "line", paint: { "line-color": "#ffffff", "line-width": 5.5 } },
 ];
 
@@ -160,15 +155,15 @@ const WORK_LAYERS: LayerBody[] = [
   {
     suffix: "fill",
     type: "fill",
-    paint: { "fill-color": ["get", "fill"], "fill-opacity": ["get", "fillOpacity"] },
+    paint: { "fill-color": ["get", "colour"], "fill-opacity": ["get", "fillOpacity"] },
   },
   {
     suffix: "line",
     type: "line",
     filter: ["!", ["get", "dashed"]],
     paint: {
-      "line-color": ["get", "fill"],
-      "line-width": ["case", ["get", "selected"], 3, 1.6],
+      "line-color": ["get", "colour"],
+      "line-width": ["case", ["get", "selected"], 3, 1.75],
       "line-opacity": 0.95,
     },
   },
@@ -177,10 +172,10 @@ const WORK_LAYERS: LayerBody[] = [
     type: "line",
     filter: ["get", "dashed"],
     paint: {
-      "line-color": ["get", "fill"],
-      "line-width": ["case", ["get", "selected"], 3, 1.6],
+      "line-color": ["get", "colour"],
+      "line-width": ["case", ["get", "selected"], 3, 1.75],
       "line-opacity": 0.95,
-      "line-dasharray": [3, 2],
+      "line-dasharray": [3, 2.5],
     },
   },
 ];

@@ -1,7 +1,10 @@
-/* One legend component, two vocabularies. It sits low and quiet: a reader who
-   already understands the colours should be able to ignore it. */
+/* One legend component, two vocabularies. It sits over the map, quiet and
+   collapsible: a reader who already knows the colours should be able to fold
+   it away, and nobody should have to consult it to read a status, because
+   every status carries its label wherever it appears. */
 
 import { useState } from "react";
+import { IconChevronDown } from "./ui/icons";
 
 export interface LegendItem {
   key: string;
@@ -15,8 +18,8 @@ export function Legend({ title, items }: { title: string; items: LegendItem[] })
   return (
     <div className={`legend${open ? "" : " is-collapsed"}`}>
       <button type="button" className="legend-head" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-        <span className="u-label">{title}</span>
-        <span className={`chevron${open ? " is-open" : ""}`} aria-hidden="true" />
+        <span className="u-eyebrow">{title}</span>
+        <IconChevronDown size={15} className={`legend-chevron${open ? " is-open" : ""}`} />
       </button>
       {open ? (
         <ul className="legend-list">
@@ -54,12 +57,13 @@ export const PORTFOLIO_LEGEND: LegendItem[] = [
   },
 ];
 
-/* Work states are not repeated here: the Progress toggles above already carry
-   their swatches, and a legend that restates the control beside it is noise. */
 export const PROJECT_LEGEND: LegendItem[] = [
+  { key: "completed", label: "Completed", swatch: "sw-completed" },
+  { key: "active", label: "In progress", swatch: "sw-active" },
+  { key: "behind", label: "Behind programme", swatch: "sw-behind" },
+  { key: "blocked", label: "Blocked", swatch: "sw-blocked" },
+  { key: "planned", label: "Planned", swatch: "sw-planned" },
   { key: "issue", label: "Issue location", swatch: "sw-issue" },
   { key: "milestone", label: "Milestone", swatch: "sw-milestone", note: "Hover for the date." },
-  { key: "evidence", label: "Evidence capture point", swatch: "sw-evidence" },
-  { key: "corridor", label: "State highway", swatch: "sw-corridor" },
-  { key: "boundary", label: "Project boundary", swatch: "sw-boundary" },
+  { key: "evidence", label: "Evidence", swatch: "sw-evidence" },
 ];

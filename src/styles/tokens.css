@@ -1,115 +1,148 @@
 /* ============================================================================
-   TACEDGE design tokens
+   Design tokens
    ----------------------------------------------------------------------------
-   Values are copied verbatim from TacEdge/Brand-Identity-and-Guidelines
-   (tokens/colors.json, typography.json, spacing.json, radii.json, shadows.json).
-   That repository is the source of truth. This file never introduces a colour,
-   a radius or a type size that does not exist there.
+   Implements the Fulton Hogan brand guidance supplied for this prototype
+   (FULTON_HOGAN_BRAND_GUIDELINES.md, section 15). Those values are described
+   in that document as provisional approximations derived from Fulton Hogan's
+   public website: if official brand files are supplied, they replace what is
+   here and this file is the only place that has to change.
 
-   Two rules from the brand repository govern how colour is used here:
-     - #2B4721 (logo-forest) is artwork-only. It is not in this file because
-       nothing outside a logo file may use it.
-     - Ochre #B07D2B and brick #9E3B2E carry product meaning only. In this
-       prototype they mean "attention required" and "intervention required".
-       They are never decorative.
+   The interface balance the guidance asks for, and that this file is set up to
+   produce: about 70% white and neutral surface, about 20% charcoal and dark
+   text, and 10% or less of brand blue, brand orange and semantic status
+   colour combined. Orange is the sharpest accent and therefore the most
+   restrained: selection and a single primary emphasis, never a background
+   wash.
    ========================================================================== */
 
 :root {
-  /* ---- Colour: greens --------------------------------------------------- */
-  --forest: #112411; /* primary-dark */
-  --forest-2: #1a3219; /* primary-dark-hover */
-  --contour-on-dark: #1b331a;
-  --olive: #6e7d5c; /* utility-sage, also "information" */
-  --olive-edge: #aeb89c; /* sage-edge */
-  --sage: #b2b594; /* pale-sage */
-  --sage-tint: #e6ebd9;
+  /* ---- Brand ------------------------------------------------------------ */
+  --fh-blue: #0099c7;
+  --fh-orange: #f58325;
+  --fh-charcoal: #211f1f;
+  --fh-white: #ffffff;
 
-  /* ---- Colour: surfaces ------------------------------------------------- */
-  --cream: #f7f5ec; /* warm-cream, the brand paper */
-  --card: #ffffff;
-  --tint: #eff1e4; /* quiet-tint */
-  --stage: #dde3d2;
+  /* Accessible variants. The bright brand colours fail AA at body sizes, so
+     marks, rules, icons, large text and selected states use the bright value
+     and anything small uses these. */
+  --fh-blue-accessible: #006b8a; /* 6.1:1 on white */
+  --fh-orange-accessible: #a94700; /* 5.9:1 on white */
 
-  /* ---- Colour: text ----------------------------------------------------- */
-  --ink: #242a1f; /* primary-text */
-  --ink-60: #5b6253; /* secondary-text */
-  --ink-40: #646a5a; /* muted-text */
+  /* ---- Interface neutrals ----------------------------------------------- */
+  --fh-ink: #1d2429; /* primary text, 14.6:1 on white */
+  --fh-slate: #5d6870; /* secondary text, 5.5:1 on white */
+  --fh-muted: #7a858d; /* 3.8:1 — large text, icons and rules only, never body */
+  --fh-border: #dce2e6;
+  --fh-border-strong: #c6ced4;
+  --fh-surface: #f4f6f7;
+  --fh-surface-raised: #ffffff;
+  --fh-surface-sunken: #eceff1;
+  --fh-surface-dark: #181d21;
+  --fh-blue-tint: #e8f6fa;
+  --fh-orange-tint: #fff0e4;
 
-  /* ---- Colour: lines ---------------------------------------------------- */
-  --line: #e7e2d6; /* border */
-  --line-2: #d9d3c4; /* border-strong */
-  --rule: #cbd2c9; /* divider */
+  /* ---- Operational status ----------------------------------------------- */
+  /* Semantic, never decorative, and never the only signal: every status in the
+     interface carries a written label as well as its colour. */
+  --status-on-track: #18864b;
+  --status-attention: #d97706;
+  --status-intervention: #c62828;
+  --status-stale: #7b8792;
+  --status-information: #1976a3;
 
-  /* ---- Colour: status (product meaning only) ---------------------------- */
-  --success: #112411; /* forest fill is the terminal-positive state */
-  --ochre: #b07d2b; /* warning */
-  --ochre-tint: #f5ebd4;
-  --brick: #9e3b2e; /* error */
-  --brick-tint: #f3ddd6;
+  /* Text-safe pairs for the two that fail AA at body size. */
+  --status-on-track-text: #136c3d;
+  --status-attention-text: #a94700;
+  --status-intervention-text: #c62828;
+  --status-stale-text: #5d6870;
 
-  /* ---- Colour: alpha hairlines ------------------------------------------ */
-  --cream-line: rgba(247, 245, 236, 0.16);
-  --sage-line: rgba(178, 181, 148, 0.5);
-  --olive-line: rgba(110, 125, 92, 0.28);
+  /* Tinted fills behind status rows and badges. */
+  --status-on-track-tint: #e7f4ec;
+  --status-attention-tint: #fdf1e0;
+  --status-intervention-tint: #fbeaea;
+  --status-stale-tint: #eef1f3;
 
-  /* ---- Type ------------------------------------------------------------- */
-  --display: "Play", system-ui, sans-serif;
-  --ui: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  /* ---- Map --------------------------------------------------------------- */
+  /* Map-specific neutrals derived from the surface and border tokens. The
+     basemap is deliberately quiet: it gives geographic context and then gets
+     out of the way of the operational overlays. */
+  --map-sea: #d4e3ec;
+  --map-land: #f4f6f7;
+  --map-coast: #aebdc7;
+  --map-region-line: #dce2e6;
+  --map-road: #ffffff;
+  --map-road-casing: #ccd5da;
 
-  --fs-2xs: 10px;
-  --fs-xs: 11px;
-  --fs-sm: 12px;
-  --fs-base: 14px;
-  --fs-md: 15px;
-  --fs-lg: 18px;
-  --fs-xl: 26px;
-  --fs-2xl: 30px;
+  /* ---- Typography -------------------------------------------------------- */
+  --font-display: "Montserrat", "Inter", Arial, sans-serif;
+  --font-ui: "Inter", Arial, Helvetica, sans-serif;
 
-  /* ---- Spacing ---------------------------------------------------------- */
-  --sp-2xs: 4px;
-  --sp-xs: 8px;
-  --sp-sm: 12px;
-  --sp-md: 16px;
-  --sp-lg: 20px;
-  --sp-xl: 24px;
-  --sp-2xl: 28px;
-  --sp-3xl: 36px;
-  --sp-4xl: 48px;
+  --fs-eyebrow: 11px;
+  --fs-caption: 12px;
+  --fs-label: 13px;
+  --fs-body: 14px;
+  --fs-body-lg: 15px;
+  --fs-panel-heading: 16px;
+  --fs-section-heading: 19px;
+  --fs-title: 22px;
+  --fs-metric: 28px;
+  --fs-metric-lg: 32px;
 
-  /* ---- Radius ----------------------------------------------------------- */
-  --r-sm: 10px;
-  --r-md: 12px;
-  --r-lg: 14px;
-  --r-card: 16px;
-  --r-panel: 20px;
-  --r-panel-lg: 24px;
-  --r-pill: 999px;
+  /* ---- Shape ------------------------------------------------------------- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+  --border-width: 1px;
 
-  /* ---- Elevation -------------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(27, 33, 23, 0.05);
-  --shadow-md: 0 2px 10px rgba(27, 33, 23, 0.06);
-  --shadow-lg: 0 8px 28px rgba(27, 33, 23, 0.1);
+  /* ---- Spacing, 4px base ------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
 
-  /* ---- Motion. Restrained: state changes, never decoration. ------------- */
-  --motion-dur: 0.16s;
+  /* ---- Elevation --------------------------------------------------------- */
+  /* Minimal by instruction: structure comes from borders, not shadow. */
+  --shadow-sm: 0 1px 2px rgba(29, 36, 41, 0.06);
+  --shadow-md: 0 2px 8px rgba(29, 36, 41, 0.08);
+  --shadow-panel: 0 4px 16px rgba(29, 36, 41, 0.1);
+
+  /* ---- Motion ------------------------------------------------------------ */
+  /* Subtle and purposeful, 120 to 220ms. */
+  --motion-fast: 120ms;
+  --motion-base: 160ms;
+  --motion-slow: 220ms;
   --motion-ease: cubic-bezier(0.2, 0, 0, 1);
 
-  /* ---- Chrome geometry -------------------------------------------------- */
-  --header-h: 60px;
-  --panel-w: 400px;
-  --rail-w: 268px;
+  /* ---- Chrome geometry --------------------------------------------------- */
+  --header-h: 64px;
+  --toolbar-h: 130px;
+  --panel-w: 420px;
+  --touch-target: 44px;
 }
 
-/* Health states resolve to brand status colour in exactly one place. Every
-   component reads these, so re-pointing a state is a one-line change. */
+/* Health states resolve to a status colour in exactly one place, so
+   re-pointing a state is a one-line change. */
 :root {
-  --health-on-track: var(--forest);
-  --health-on-track-tint: var(--sage-tint);
-  --health-attention: var(--ochre);
-  --health-attention-tint: var(--ochre-tint);
-  --health-intervention: var(--brick);
-  --health-intervention-tint: var(--brick-tint);
-  --health-stale: var(--ink-40);
-  --health-stale-tint: var(--tint);
+  --health-on-track: var(--status-on-track);
+  --health-on-track-text: var(--status-on-track-text);
+  --health-on-track-tint: var(--status-on-track-tint);
+
+  --health-attention: var(--status-attention);
+  --health-attention-text: var(--status-attention-text);
+  --health-attention-tint: var(--status-attention-tint);
+
+  --health-intervention: var(--status-intervention);
+  --health-intervention-text: var(--status-intervention-text);
+  --health-intervention-tint: var(--status-intervention-tint);
+
+  --health-stale: var(--status-stale);
+  --health-stale-text: var(--status-stale-text);
+  --health-stale-tint: var(--status-stale-tint);
 }

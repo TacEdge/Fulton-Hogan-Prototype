@@ -5,7 +5,7 @@
 
      local   (default) A self-contained vector basemap built from New Zealand
              coastline and regional boundaries carried in `public/geo/`, styled
-             in TACEDGE colour. No API key, no tile server, no network. This is
+             in the interface neutrals. No API key, no tile server, no network. This is
              what makes the prototype runnable anywhere.
 
      linz    LINZ Basemaps, the authoritative national imagery and topographic
@@ -23,12 +23,15 @@ import type { StyleSpecification } from "maplibre-gl";
 
 export type BasemapKind = "local" | "linz-topographic" | "linz-aerial";
 
-const BRAND = {
-  sea: "#dde3d2", // stage
-  land: "#f7f5ec", // warm-cream
-  coast: "#cbd2c9", // divider
-  coastHalo: "#d9d3c4", // border-strong
-  regionLine: "#d9d3c4", // border-strong
+/* Map-specific neutrals, mirroring the --map-* tokens in styles/tokens.css.
+   Reduced saturation, light land, restrained lines: the basemap gives
+   geographic context and then stays out of the way of the overlays. */
+const MAP = {
+  sea: "#d4e3ec",
+  land: "#f4f6f7",
+  coast: "#aebdc7",
+  coastHalo: "#c3d4de",
+  regionLine: "#dce2e6",
 } as const;
 
 export function resolveBasemapKind(): BasemapKind {
@@ -54,35 +57,35 @@ export function linzStyleUrl(kind: Exclude<BasemapKind, "local">): string {
 export function localStyle(): StyleSpecification {
   return {
     version: 8,
-    name: "TACEDGE operational ground",
+    name: "Operational ground",
     // No `glyphs` entry: nothing in this style renders text. Every label on the
-    // map is a DOM marker, which is what keeps brand typography exact and keeps
+    // map is a DOM marker, which is what keeps the type system exact and keeps
     // a glyph server out of the deployment.
     sources: {
       "nz-land": { type: "geojson", data: "/geo/nz-land.json" },
       "nz-regions": { type: "geojson", data: "/geo/nz-regions.json" },
     },
     layers: [
-      { id: "sea", type: "background", paint: { "background-color": BRAND.sea } },
+      { id: "sea", type: "background", paint: { "background-color": MAP.sea } },
       {
         id: "land-halo",
         type: "line",
         source: "nz-land",
-        paint: { "line-color": BRAND.coastHalo, "line-width": 4, "line-blur": 3, "line-opacity": 0.7 },
+        paint: { "line-color": MAP.coastHalo, "line-width": 4, "line-blur": 3, "line-opacity": 0.7 },
       },
-      { id: "land", type: "fill", source: "nz-land", paint: { "fill-color": BRAND.land } },
+      { id: "land", type: "fill", source: "nz-land", paint: { "fill-color": MAP.land } },
       {
         id: "region-fill",
         type: "fill",
         source: "nz-regions",
-        paint: { "fill-color": "#e6ebd9", "fill-opacity": 0 },
+        paint: { "fill-color": "#e8f6fa", "fill-opacity": 0 },
       },
       {
         id: "region-line",
         type: "line",
         source: "nz-regions",
         paint: {
-          "line-color": BRAND.regionLine,
+          "line-color": MAP.regionLine,
           "line-width": 0.8,
           // Regional boundaries are portfolio-scale furniture. Inside a project
           // they are a line across the view that means nothing, so they go.
@@ -93,7 +96,7 @@ export function localStyle(): StyleSpecification {
         id: "coast",
         type: "line",
         source: "nz-land",
-        paint: { "line-color": BRAND.coast, "line-width": 1 },
+        paint: { "line-color": MAP.coast, "line-width": 1 },
       },
     ],
   } as StyleSpecification;

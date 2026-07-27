@@ -1,4 +1,7 @@
-/* Reset, page ground, and the shared type roles. */
+/* Reset, page ground, and the shared type roles.
+
+   Casing rule from the brand guidance: sentence case everywhere except short
+   eyebrow labels. No all-caps headings, no all-caps body. */
 
 *,
 *::before,
@@ -14,10 +17,10 @@ body,
 
 body {
   margin: 0;
-  background: var(--cream);
-  color: var(--ink);
-  font-family: var(--ui);
-  font-size: var(--fs-base);
+  background: var(--fh-surface);
+  color: var(--fh-ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -28,9 +31,9 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-family: var(--display);
+  font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
 }
 
 p {
@@ -43,55 +46,65 @@ button {
   margin: 0;
 }
 
-ul {
+ul,
+ol {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+table {
+  border-collapse: collapse;
+}
+
+svg {
+  display: block;
+  flex: none;
+}
+
 :focus-visible {
-  outline: 2px solid var(--forest);
+  outline: 2px solid var(--fh-blue-accessible);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .on-dark :focus-visible {
-  outline-color: var(--cream);
+  outline-color: var(--fh-orange);
 }
 
 /* ---- Type roles --------------------------------------------------------- */
 
-/* Utility label: mono, uppercase, wide tracking. Eyebrows and field names.
-   Never used for sentences. */
-.u-label {
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: var(--fs-xs);
-  letter-spacing: 0.16em;
+/* Eyebrow: the only uppercase in the interface. Short labels only, never a
+   sentence. */
+.u-eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--fs-eyebrow);
+  font-weight: 650;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-40);
+  color: var(--fh-slate);
 }
 
-.on-dark .u-label {
-  color: var(--sage);
+.on-dark .u-eyebrow {
+  color: #c9cdd1;
 }
 
-/* Numerical data: mono, tabular figures. Measurements, IDs, coordinates. */
+/* Metrics, dates, percentages and progress values line up in columns. */
 .u-num {
-  font-family: var(--mono);
-  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  font-feature-settings: "tnum" 1;
 }
 
 .u-caption {
-  font-size: var(--fs-sm);
-  line-height: 1.5;
-  color: var(--ink-40);
+  font-size: var(--fs-caption);
+  line-height: 1.45;
+  color: var(--fh-slate);
 }
 
-.u-muted {
-  color: var(--ink-60);
+.u-label {
+  font-size: var(--fs-label);
+  font-weight: 500;
+  color: var(--fh-slate);
 }
 
 .u-truncate {

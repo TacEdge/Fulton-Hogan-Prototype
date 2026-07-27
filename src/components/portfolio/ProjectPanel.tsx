@@ -1,4 +1,4 @@
-/* The contextual panel behind a project marker. Enough to decide whether this
+/* The contextual drawer behind a project marker. Enough to decide whether this
    project needs you, and one way in if it does. */
 
 import { useState } from "react";
@@ -18,12 +18,16 @@ import { useViewStore } from "@/state/viewStore";
 import {
   Button,
   Field,
-  HealthChip,
-  ProgressBar,
+  OpenInSourceButton,
+  ProgressMeter,
+  ReadoutRow,
   SectionTitle,
   SourceTag,
+  StatusBadge,
   StatusDot,
+  StatusPill,
 } from "@/components/ui/primitives";
+import { IconArrowRight, IconClose } from "@/components/ui/icons";
 
 export function ProjectPanel() {
   const selectedProjectId = useViewStore((s) => s.selectedProjectId);
@@ -40,86 +44,105 @@ export function ProjectPanel() {
   const signals = [...project.signals].sort(bySeverityThenDimension);
 
   return (
-    <aside className="panel" aria-label={`${project.name} summary`}>
-      <header className="panel-head">
-        <div className="panel-head-top">
-          <span className="u-label u-num">{project.reference}</span>
+    <aside className="drawer" aria-label={`${project.name} summary`}>
+      <header className="drawer-head">
+        <div className="drawer-head-line">
+          <StatusDot state={status.markerState} size={11} />
+          <h2 className="drawer-title">{project.name}</h2>
           <button
             type="button"
-            className="panel-close"
+            className="icon-btn"
             onClick={() => selectProject(null)}
             aria-label="Close project panel"
           >
-            ×
+            <IconClose size={18} />
           </button>
         </div>
-        <h2 className="panel-title">{project.name}</h2>
-        <p className="panel-sub u-caption">{project.contract}</p>
-        <div className="panel-head-status">
-          <HealthChip state={status.markerState} />
-          {status.freshness === "stale" ? (
-            <span className="u-caption">Last refresh {formatAge(project.dataAgeHours)}</span>
-          ) : null}
+        <div className="drawer-head-meta">
+          <StatusBadge state={status.markerState} />
+          <span className="u-caption u-num">{project.reference}</span>
         </div>
       </header>
 
-      <div className="panel-body">
-        <section className="panel-section">
-          <SectionTitle>Progress against programme</SectionTitle>
-          <ProgressBar
-            actual={project.progressActual}
-            planned={project.progressPlanned}
-            state={status.markerState}
-          />
-          <div className="variance-line">
-            <span className={`variance ${status.variance < 0 ? "is-behind" : "is-ok"} u-num`}>
-              {formatVariance(status.variance)}
-            </span>
-            <span className="u-caption">Programme variance</span>
+      <div className="drawer-body">
+        <section className="drawer-section">
+          <div className="field-grid field-grid-3">
+            <Field label="Region">{region?.label ?? "—"}</Field>
+            <Field label="Business unit">{unit?.label ?? "—"}</Field>
+            <Field label="Project type">{type?.label ?? "—"}</Field>
+            <Field label="Project Manager">{project.projectManager}</Field>
+            <Field label="Operations Manager">{project.operationsManager}</Field>
+            <Field label="Contract" wide>
+              {project.contract}
+            </Field>
           </div>
         </section>
 
-        <section className="panel-section">
-          <SectionTitle>Where it stands</SectionTitle>
-          <div className="field-grid">
-            <Field label="Current workfront" wide>
-              {project.currentWorkfront}
-            </Field>
-            <Field label="Open issues">
+        <section className="drawer-section progress-block">
+          <div className="progress-columns">
+            <div className="progress-column">
+              <span className="u-eyebrow">Actual progress</span>
+              <span className="progress-number u-num">{project.progressActual}%</span>
+              <ProgressMeter value={project.progressActual} state={status.markerState} />
+            </div>
+            <div className="progress-column">
+              <span className="u-eyebrow">Planned progress</span>
+              <span className="progress-number u-num is-quiet">{project.progressPlanned}%</span>
+              <ProgressMeter value={project.progressPlanned} state="planned" />
+            </div>
+            <div className="progress-column">
+              <span className="u-eyebrow">Variance</span>
+              <span className={`progress-number u-num${status.variance < 0 ? " is-behind" : ""}`}>
+                {status.variance > 0 ? "+" : ""}
+                {status.variance}%
+              </span>
+              <span className="u-caption">{formatVariance(status.variance)}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="drawer-section">
+          <div className="readout-column">
+            <ReadoutRow label="Overall health">
+              <StatusPill state={status.markerState} />
+            </ReadoutRow>
+            <ReadoutRow label="Current workfront">
+              <span className="u-truncate" title={project.currentWorkfront}>
+                {project.currentWorkfront}
+              </span>
+            </ReadoutRow>
+            <ReadoutRow label="Open issues">
               <span className="u-num">{project.openIssues}</span>
-            </Field>
-            <Field label="Overdue actions">
+            </ReadoutRow>
+            <ReadoutRow label="Overdue actions">
               <span className={`u-num${project.overdueActions > 0 ? " is-flagged" : ""}`}>
                 {project.overdueActions}
               </span>
-            </Field>
-            <Field label="Next milestone" wide>
-              {project.nextMilestone}
-              <span className="field-aside u-num">{project.nextMilestoneDate}</span>
-            </Field>
-            <Field label="Milestone confidence" wide>
-              <HealthChip
+            </ReadoutRow>
+            <ReadoutRow label="Next milestone">
+              <span className="u-truncate" title={project.nextMilestone}>
+                {project.nextMilestone}
+              </span>
+            </ReadoutRow>
+            <ReadoutRow label="Milestone date">
+              <span className="u-num">{project.nextMilestoneDate}</span>
+            </ReadoutRow>
+            <ReadoutRow label="Milestone confidence">
+              <StatusPill
                 state={CONFIDENCE_HEALTH[project.milestoneConfidence]}
                 label={CONFIDENCE_LABEL[project.milestoneConfidence]}
               />
-            </Field>
+            </ReadoutRow>
+            <ReadoutRow label="Data freshness">
+              <span className="freshness">
+                <StatusDot state={status.freshness === "stale" ? "stale" : "on-track"} size={8} />
+                {formatAge(project.dataAgeHours)}
+              </span>
+            </ReadoutRow>
           </div>
         </section>
 
-        <section className="panel-section">
-          <SectionTitle>Accountability</SectionTitle>
-          <div className="field-grid">
-            <Field label="Project Manager">{project.projectManager}</Field>
-            <Field label="Operations Manager">{project.operationsManager}</Field>
-            <Field label="Region">{region?.label ?? "—"}</Field>
-            <Field label="Project type">{type?.label ?? "—"}</Field>
-            <Field label="Business unit" wide>
-              {unit?.label ?? "—"}
-            </Field>
-          </div>
-        </section>
-
-        <section className="panel-section">
+        <section className="drawer-section">
           <SectionTitle
             action={
               <button
@@ -136,7 +159,7 @@ export function ProjectPanel() {
           </SectionTitle>
           <p className="rationale">{status.rationale}</p>
           <p className="derivation u-caption">
-            Derived by TACEDGE from {project.signals.length} signals across{" "}
+            Derived from {project.signals.length} signals across{" "}
             {new Set(project.signals.map((s) => s.sourceSystemId)).size} systems. Demonstration logic.
           </p>
 
@@ -158,7 +181,7 @@ export function ProjectPanel() {
                       size={8}
                     />
                     <span className="signal-dimension">{DIMENSION_LABEL[signal.dimension]}</span>
-                    <span className="signal-state u-label">{SIGNAL_LABEL[signal.state]}</span>
+                    <span className="signal-state">{SIGNAL_LABEL[signal.state]}</span>
                   </div>
                   <p className="signal-value">{signal.value}</p>
                   {signal.note ? <p className="signal-note u-caption">{signal.note}</p> : null}
@@ -173,25 +196,25 @@ export function ProjectPanel() {
         </section>
       </div>
 
-      <footer className="panel-foot">
-        <div className="freshness">
-          <StatusDot state={status.freshness === "stale" ? "stale" : "on-track"} size={7} />
-          <span className="u-caption">Last data refresh {formatAge(project.dataAgeHours).toLowerCase()}</span>
-        </div>
+      <footer className="drawer-foot">
         {project.hasDetailView ? (
-          <Button variant="primary" full onClick={() => openProject(project.id)}>
+          <Button
+            variant="primary"
+            onClick={() => openProject(project.id)}
+            iconAfter={<IconArrowRight size={16} />}
+          >
             View project
           </Button>
         ) : (
           <Button
             variant="secondary"
-            full
             disabled
             title="Only the featured project carries a project-level spatial view in this prototype."
           >
             Project view not in this prototype
           </Button>
         )}
+        <OpenInSourceButton label="Project Controls" />
       </footer>
     </aside>
   );

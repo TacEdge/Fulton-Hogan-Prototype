@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { GLOSSARY, SOURCE_SYSTEMS } from "@/data/reference";
 import { ADAPTER_BY_SOURCE } from "@/services/adapters";
 import { useViewStore } from "@/state/viewStore";
+import { IconClose } from "./ui/icons";
 
 export function AboutPanel() {
   const open = useViewStore((s) => s.aboutOpen);
@@ -29,11 +30,17 @@ export function AboutPanel() {
       <div className="about-sheet">
         <header className="about-head">
           <div>
-            <p className="u-label">Operational Picture</p>
+            <p className="u-eyebrow">Operational Picture</p>
             <h2 className="about-title">Concept by TACEDGE</h2>
           </div>
-          <button ref={closeRef} type="button" className="panel-close" onClick={() => setAboutOpen(false)}>
-            ×
+          <button
+            ref={closeRef}
+            type="button"
+            className="icon-btn"
+            onClick={() => setAboutOpen(false)}
+            aria-label="Close"
+          >
+            <IconClose size={20} />
           </button>
         </header>
 
@@ -95,6 +102,23 @@ export function AboutPanel() {
                 </dd>
               </div>
             </dl>
+          </section>
+
+          <section className="about-section">
+            <h3 className="about-h3">Branding</h3>
+            <p>
+              Colour, type and layout follow brand guidance supplied for this prototype and derived
+              from Fulton Hogan's public material. That guidance describes itself as provisional
+              rather than an official brand manual, so every value here is an approximation that
+              official brand files would replace.
+            </p>
+            <p>
+              No Fulton Hogan logo appears anywhere in this prototype. No official asset was
+              supplied, the mark must not be redrawn or recreated, and a third-party download is not
+              a substitute, so the header carries a slot that stays empty until an official file is
+              dropped in. Nothing on screen approximates the mark. The TACEDGE attribution is
+              deliberately secondary.
+            </p>
           </section>
 
           <section className="about-section">
